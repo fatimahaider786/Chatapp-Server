@@ -5,19 +5,24 @@ import cors from "cors";
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST"]
+}));
 
 const server = http.createServer(app);
 
+
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: "*",
     methods: ["GET", "POST"],
   },
+  transports: ["polling", "websocket"] 
 });
 
 app.get("/", (req, res) => {
-  res.send("Socket Server Running");
+  res.send("Socket Server Running Successfully on Vercel!");
 });
 
 io.on("connection", (socket) => {
@@ -30,7 +35,6 @@ io.on("connection", (socket) => {
 
   socket.on("send", (message) => {
     console.log("Message:", message);
-
     io.to(message.room).emit("message", message);
   });
 
@@ -39,6 +43,8 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(5050, () => {
-  console.log("Server running on port 5050");
+
+const PORT = process.env.PORT || 5050;
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
